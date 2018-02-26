@@ -11,7 +11,7 @@ export default class CustomNavbar extends Component {
   userSearch(ev) {
     ev.preventDefault();
     console.log('searching');
-    console.log(FormControl.value);
+    // console.log(FormControl.value);
 
   }
 
