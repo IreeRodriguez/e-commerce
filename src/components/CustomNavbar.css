@@ -28,7 +28,7 @@ nav.navbar, .navbar-default {
   background-color: transparent;
 }
 
-.navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover {
+.navbar-default:focus, .navbar-default:hover {
   color: white;
   background-color: #2EA7D9;
 }
@@ -47,4 +47,7 @@ nav.navbar, .navbar-default {
 
 .navbar-form{
   margin-right: 4em !important;
+}
+.navbar{
+  margin-bottom: 0;
 }
