@@ -17,19 +17,23 @@ export default class Home extends Component {
   }
 
   fetchData(){
-    fetch('https://api.mercadolibre.com/sites/MLA')
+    fetch('https://api.mercadolibre.com/sites/MLA', {
+      type: 'GET',
+      datatype: 'json'
+    })
       .then(response => response.json())
-        .then(data => data.results.map(quiz => (
-          {
-            questions: `${quiz.question}`,
-            wrong: `${quiz.incorrect_answers}`
-          }
+        .then(data => console.log(data.categories))
+          // .map(quiz => (
+          // {
+          //   questions: `${quiz.question}`,
+          //   wrong: `${quiz.incorrect_answers}`
+          // }
 
-        )))
-          .then(quizes => this.setState({
-            quizes,
-            isLoading: false
-          }) )
+        // )))
+          // .then(quizes => this.setState({
+          //   quizes,
+          //   isLoading: false
+          // }) )
           .catch(error => console.log(error))
   }
 
