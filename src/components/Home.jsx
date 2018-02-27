@@ -39,7 +39,7 @@ export default class Home extends Component {
   render() {
     const {isLoading, category} = this.state;
     return (
-      <div className={`content ${isLoading ? 'is-loading' : ''}`}>
+      <div className={`content ${isLoading ? 'is-loading' : ''}`} >
         {
                             !isLoading && category.length > 0 ? category.map(cat => {
                                 const {categories, id} = cat;

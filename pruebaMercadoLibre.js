@@ -7,15 +7,17 @@ $(document).ready(() => {
   })
   site();
   categories();
+  promocion();
+  /*conversion();*/
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
 
     } else {
-      $('#login-btn').click(login);
-      $('#signup-btn').click(signup);
-      $('#logout-btn').click(logout);
-      $('#google-btn').click(ingresoGoogle);
-      $('#facebook-btn').click(ingresoFacebook);
+      document.getElementById('login-btn').addEventListener('click', login);
+      document.getElementById('signup-btn').addEventListener('click', signup);
+      document.getElementById('logout-btn').addEventListener('click', logout);
+      document.getElementById('google-btn').addEventListener("click", ingresoGoogle);
+      document.getElementById('facebook-btn').addEventListener('click', ingresoFacebook);
     }
   });
 });
@@ -24,8 +26,8 @@ var database = firebase.database();
 var user = null;
 
 function login() {
-  let email = $('#email-login').val();
-  let pw = $('#pw-login').val();
+  let email = document.getElementById('email-login').value;
+  let pw = document.getElementById('pw-login').value;
   if (email !== '' && pw !== '') {
     const promise = firebase.auth().signInWithEmailAndPassword(email, pw);
     promise.catch(e => alert(e.message));
@@ -33,8 +35,8 @@ function login() {
 }
 
 function signup() {
-  let email = $('#email-signup').val();
-  let pw = $('#pw-signup').val();
+  let email = document.getElementById('email-signup').value;
+  let pw = document.getElementById('pw-signup').value;
   if (email !== '' && pw !== '') {
     const promise = firebase.auth().createUserWithEmailAndPassword(email, pw);
     promise.catch(e => alert(e.message));
@@ -98,7 +100,8 @@ function ingresoFacebook() {
 
 // variables globales
 var siteSelected = 'MLC';
-var categorie = ''
+var categorie = '';
+
 
 // sitios para seleccionar
 
@@ -107,7 +110,6 @@ function site() {
       return response.json();
   })
   .then(function(data) {
-    console.log(data)
     $.each(data, function(i, country) {
       if (country.id == 'MLC') {
         $('#country').append(`<option value="${country.id}" data-index="${i}" class="option ${i}" selected>${country.name}</option>`)
@@ -116,20 +118,20 @@ function site() {
       }
     });
 
-    $('#country').on('change', selectionSite);
+    document.getElementById('country').addEventListener('change', selectionSite);
 
   })
 
 }
 
 function categories() {
+  $('#categories').html('');
   fetch(`https://api.mercadolibre.com/sites/${siteSelected}/categories`).then(function(response) {
       return response.json();
   })
   .then(function(data) {
-    console.log(data)
-    $.each(data, function(i, categorie) {
-      $('#categories').append(`<li id="${categorie.id}" data-index="${i}" class="categorieSearch categorie-${i}">${categorie.name}</li>`)
+    data.forEach(function(categorie, i) {
+      $('#categories').append(`<li id="categorie-${i}" data-cat="${categorie.id}" data-index="${i}" class="categorieSearch">${categorie.name}</li>`)
       
     });
 
@@ -140,18 +142,100 @@ function categories() {
 }
 
 function selectionCategorie() {
-  let index = $(this).data('index');
-  categoria = $('.categorie-'+index).val();
+  categoria = $(this).data('cat');
+  $('#categories').html('');
+  fetch(`https://api.mercadolibre.com/categories/${categoria}`).then(function(response) {
+      return response.json();
+  })
+  
+    .then(function(data) {
+      data.children_categories.forEach(function(categories, i) {
+        $('#categories').append(`<li id="categorieSelect-${i}" data-select="${categories.name}" class="categorieSelect">${categories.name}</li>`)
+
+      });
+    $('.categorieSelect').on('click', selectionProductos);
+   });
+
 }
+
+function selectionProductos() {
+  let productos = $(this).data('select');
+  $('#promociones').html('');
+  $('#rowProductos').html('');
+  fetch(`https://api.mercadolibre.com/sites/${siteSelected}/search?q=${productos}`).then(function(response) {
+      return response.json();
+  })
+    .then(function(data) {
+      
+      data.results.forEach(function(producto, i) {
+        $('#rowProductos').append(`
+                                    <div class="col-md-4 imgSelect" data-index="${producto.id}">
+                                      <img class="card-img-top img-${i}" src="${producto.thumbnail}">
+                                      <h5 class="card-title text-${i}">${producto.title}</h5>
+                                      <p>${producto.price}</p>
+                          
+                                    </div>`);
+  
+      });
+      $('.imgSelect').click(showInfo);
+   });
+
+}
+
+function showInfo() {
+  let index = $(this).data('index');
+  fetch(`https://api.mercadolibre.com/items/${index}`).then(function(response) {
+      return response.json();
+   })
+  
+    .then(function(data) {
+      console.log('es mio',data);
+      $('#promociones').html('');
+      $('#rowProductos').html('');
+      let title = data.title
+      let price = data.price;
+      let condition = data.condition;
+      let peso = data.currency_id;
+      let thumbnail = data.thumbnail;
+      fetch(`https://api.mercadolibre.com/items/${index}/description`).then(function(response) {
+      return response.json();
+      })
+  
+      .then(function(data) {
+        console.log('es mio',data);
+        let description=data.plain_text
+        fetch(`https://api.mercadolibre.com/currency_conversions/search?from=${peso}&to=USD`).then(function(response) {
+      return response.json();
+    })
+  
+      .then(function(data) {
+         console.log(data.ratio)
+         let cantidad = data.ratio
+        $('#rowProductos').append(`
+                                    <div class="col-md-4 imgSelect" data-index="${index}">
+                                      <img class="card-img-top" src="${thumbnail}">
+                                      <h5 class="card-title">${title}</h5>
+                                      <p>${description}</p>
+                                      <p>USD ${parseFloat(cantidad)*parseFloat(price)} /(aprox)${peso}${price}</p>
+                                      <p>${condition}</p>
+                                      <button type="button" class="btn btn-primary" id="addCesta">Añadir a la cesta</button>
+                                      <button type="button" class="btn btn-primary" id="Comprar">Comprar</button> 
+                                    </div>`);
+      });
+        
+      });
+
+    });
+}
+
 
 // seleccion de sitio para buscar productos (pais)
 function selectionSite() {
-  let option = $(this).val();
+  let option = this.value;
   siteSelected = siteSearch(option);
 }
 
 function siteSearch(option) {
-  console.log(option);
   if (option != '') {
     return option;
   } else {
@@ -161,36 +245,74 @@ function siteSearch(option) {
 
 
 // llama a la funcion cuando al buscador se presiona un enter
-$('#search').on('keypress', function(event) {
+document.getElementById('search').addEventListener('keypress', function(event) {
   if (event.which === 13) {
-    search($('#search').val());
+    search(document.getElementById('search').value);
   }
 });
 
 // buscar todas las imagenes con palabra ingresada
 function search(search) {
+  $('#promociones').html('');
   $('#rowProductos').html('');
   fetch(`https://api.mercadolibre.com/sites/${siteSelected}/search?q=${search}`).then(function(response) {
       return response.json();
   })
   
     .then(function(data) {
-      console.log(data);
-        $.each(data.results, function(i, producto) {
-          
-        
-        $('#rowProductos').append(`<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 imgcont" data-index="${i}">
-                                    <div class="col-md-4">
+        data.results.forEach(function(producto, i) {
+        $('#rowProductos').append(`
+                                    <div class="col-md-4 imgProducto" data-index="${producto.id}">
                                       <img class="card-img-top img-${i}" src="${producto.thumbnail}">
-                                    </div>
-                                    <div class="col-md-8">
                                       <h5 class="card-title text-${i}">${producto.title}</h5>
                                       <p>${producto.price}</p>
-                                    </div>
+                                    
+                                  
                                     </div>`);
   
       });
+      $('.imgProducto').click(showInfo);
    });
 
 }
+
+function randomize() {
+  let promo = [];
+  let result =promo.splice(getRandomInt(0, lis.length), 1)[0];
+  fetch(`https://api.mercadolibre.com/sites/${siteSelected}/categories`).then(function(response) {
+    return response.json();
+  })
+  .then(function(data) {
+    data.forEach(function(promocion, i) {
+      promo.push(promocion.name)
+    });
+  })
+  return result;
+}
+
+// seleccion de palabra clave para carrusel
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function promocion () {
+  fetch(`https://api.mercadolibre.com/sites/${siteSelected}/search?q=${randomize}`).then(function(response) {
+    return response.json();
+  }).then(function(data) {
+    console.log('promo',data);
+    data.results.forEach(function(producto, i) {
+        $('#promociones').append(`
+                                    <div class="col-md-4 imgPromo" data-index="${producto.id}">
+                                      <img class="card-img-top img-${i}" src="${producto.thumbnail}">
+                                      <h5 class="card-title text-${i}">${producto.title}</h5>
+                                      <p>${producto.price}</p>
+          
+                                    </div>`);
+  
+    });
+    $('.imgPromo').click(showInfo);
+  }) 
+    
+}
+
 

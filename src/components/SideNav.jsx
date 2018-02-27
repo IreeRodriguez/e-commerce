@@ -16,6 +16,26 @@ export default class SideNav extends Component {
     this.fetchData();
   }
 
+  submitCategory(event) {
+    console.log(this)
+    fetch(`https://api.mercadolibre.com/categories/${this}`, {
+        type: 'GET',
+        datatype: 'json'
+      }).then(response => response.json())
+          .then(data => data.children_categories.map(sub=>(
+           {
+            subCategories: `{sub.name}`,
+            subId: `{sub.id}`,
+           }
+
+         )))
+        .then(subCategory => this.setState({
+              subCategory,
+              isLoading: false
+            }) )
+            .catch(error => console.log(error))
+  }
+
   fetchData(){
     fetch('https://api.mercadolibre.com/sites/MLC', {
       type: 'GET',
@@ -26,6 +46,7 @@ export default class SideNav extends Component {
           {
             categories: `${cat.name}`,
             id: `${cat.id}`
+
           }
 
         )))
@@ -39,12 +60,12 @@ export default class SideNav extends Component {
   render() {
     const {isLoading, category} = this.state;
     return (
-          <div className={`content ${isLoading ? 'is-loading' : ''} sidenav`} >
+          <div className={`content ${isLoading ? 'is-loading' : ''} sidenav`} onSubmit={this.submitCategory}>
           {
                               !isLoading && category.length > 0 ? category.map(cat => {
                                   const {categories, id} = cat;
                                   return <div key={id}>
-                                      <a href="#">{categories}</a>
+                                      <a href="#" onClick={this.submitCategory.bind(id)} value={id}>{categories}</a>
                                   </div>
                               }) : null
                           }
