@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Jumbotron, Grid, Row, Col, Image, Button, FormGroup, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
-import * as firebase from 'firebase'
+import * as firebase from 'firebase';
 import './SingUp.css';
 
 function FieldGroup({ id, label, help, ...props }) {

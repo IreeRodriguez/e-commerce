@@ -2,75 +2,74 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Jumbotron, Grid, Row, Col, Image, Button } from 'react-bootstrap';
 import './Home.css';
+import * as firebase from 'firebase';
 
 export default class Home extends Component {
-  constructor(){
+  constructor() {
     super();
     this.state = {
       isLoading: true,
-      category: []
+      products: []
     }
   }
 
   componentWillMount() {
-    this.fetchData();
+    this.randomize();
+
   }
 
-  fetchData(){
-    fetch('https://api.mercadolibre.com/sites/MLC', {
-      type: 'GET',
-      datatype: 'json'
+  randomize() {
+    let promo = ['', '2'];
+    fetch(`https://api.mercadolibre.com/sites/MLC/categories`).then(function (response) {
+      return response.json();
     })
-      .then(response => response.json())
-        .then(data => data.categories.map(cat => (
-          {
-            categories: `${cat.name}`,
-            id: `${cat.id}`
-          }
+      .then(function (data) {
+        data.forEach(function (promocion, i) {
+          promo.push(promocion.name)
+        });
+      })
+      .catch(error => console.log(error))
+    let random = Math.floor(Math.random() * 26) + 1;
+    // let floor = Math.floor(random) + 0;
+    let result = promo;
 
-        )))
-          .then(category => this.setState({
-            category,
-            isLoading: false
-          }) )
-          .catch(error => console.log(error))
+    fetch(`https://api.mercadolibre.com/sites/MLC/search?q=${result}`).then(function (response) {
+      return response.json();
+    }).then(data => data.results.map(prod => (
+      {
+        product: `${prod.title}`,
+        thumb: `${prod.thumbnail}`,
+        price: `${prod.price}`,
+        id: `${prod.id}`
+      }
+
+    )))
+
+
+      .then(products => this.setState({
+        products,
+        isLoading: false
+      }))
+      .catch(error => console.log(error))
+
   }
 
   render() {
-    const {isLoading, category} = this.state;
+    const { isLoading, products } = this.state;
     return (
       <div className={`content ${isLoading ? 'is-loading' : ''}`} >
         {
-                            !isLoading && category.length > 0 ? category.map(cat => {
-                                const {categories, id} = cat;
-                                return <div key={id}>
-                                    <h6>{categories}</h6>
-                                    <p>{id}</p>
-                                </div>
-                            }) : null
-                        }
-        </div>
-        // <Jumbotron>
-        //   <h2>Wellcome to CodeLive</h2>
-        //   <p>This is how to build a website with react react router and react bootstrap</p>
-        //   <Link to="/about">
-        //     <Button bsStyle="primary" > About</Button>
-        //   </Link>
-        // </Jumbotron>
-      // <Col md={8}>
-      // </Col>
-      // <Grid>
-        /* <div className={`content ${isLoading ? 'is-loading' : ''}`}>
-        {
-                            !isLoading && category.length > 0 ? category.map(cat => {
-                                const {categories, id} = cat;
-                                return <div key={id}>
-                                    <h6>{categories}</h6>
-                                    <p>{id}</p>
-                                </div>
-                            }) : null
-                        }
-        </div> */
+          !isLoading && products.length > 0 ? products.map(prod => {
+            const { product, id, thumb, price } = prod;
+            return <div className="pro" key={id}>
+              <h6>{product}</h6>
+              <Image src={thumb} thumbnail />
+              <p>$ {price}</p>
+              <Button href="#" onClick={this.addProduct}> Añadir a Carrito </Button>
+            </div>
+          }) : null
+        }
+      </div>
     );
   }
 }

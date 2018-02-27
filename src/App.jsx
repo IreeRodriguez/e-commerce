@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Grid, Row, Col } from 'react-bootstrap';
-import * as firebase from 'firebase'
+import * as firebase from 'firebase';
 
 import Home from './components/Home';
 import About from './components/About';
@@ -27,8 +27,9 @@ class App extends Component {
       <Router>
         <div>
           <Navbar />
+          <Grid fluid>
           <Row>
-            <Col sm={3} md={3}>
+            <Col className="sidebar" sm={3} md={3}>
               < SideNav />
             </Col>
             <Col sm={9} md={9}>
@@ -37,6 +38,7 @@ class App extends Component {
               <Route path="/SingUp" component={SingUp} />
             </Col>
           </Row>
+          </Grid>
         </div>
 
       </Router>
