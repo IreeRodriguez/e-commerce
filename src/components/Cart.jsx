@@ -11,11 +11,11 @@ export default class Cart extends Component {
    products = [
        {
            nameProduct: 'Notebook Acer Nvidia 2gb',
-           price: 18.68
+           price: 543
        },
        {
            nameProduct: 'Reloj Inteligente DZ09',
-           price: 543
+           price: 18.68
        }
    ]
    constructor(props) {
