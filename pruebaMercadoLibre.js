@@ -7,17 +7,27 @@ $(document).ready(() => {
   })
   site();
   categories();
+
   promocion();
   /*conversion();*/
+
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
 
     } else {
+
       document.getElementById('login-btn').addEventListener('click', login);
       document.getElementById('signup-btn').addEventListener('click', signup);
       document.getElementById('logout-btn').addEventListener('click', logout);
       document.getElementById('google-btn').addEventListener("click", ingresoGoogle);
       document.getElementById('facebook-btn').addEventListener('click', ingresoFacebook);
+
+      $('#login-btn').click(login);
+      $('#signup-btn').click(signup);
+      $('#logout-btn').click(logout);
+      $('#google-btn').click(ingresoGoogle);
+      $('#facebook-btn').click(ingresoFacebook);
+
     }
   });
 });
@@ -26,8 +36,10 @@ var database = firebase.database();
 var user = null;
 
 function login() {
+
   let email = document.getElementById('email-login').value;
   let pw = document.getElementById('pw-login').value;
+
   if (email !== '' && pw !== '') {
     const promise = firebase.auth().signInWithEmailAndPassword(email, pw);
     promise.catch(e => alert(e.message));
@@ -35,8 +47,10 @@ function login() {
 }
 
 function signup() {
+
   let email = document.getElementById('email-signup').value;
   let pw = document.getElementById('pw-signup').value;
+
   if (email !== '' && pw !== '') {
     const promise = firebase.auth().createUserWithEmailAndPassword(email, pw);
     promise.catch(e => alert(e.message));
@@ -100,7 +114,9 @@ function ingresoFacebook() {
 
 // variables globales
 var siteSelected = 'MLC';
+
 var categorie = '';
+
 
 
 // sitios para seleccionar
@@ -118,20 +134,26 @@ function site() {
       }
     });
 
+
     document.getElementById('country').addEventListener('change', selectionSite);
+
 
   })
 
 }
 
 function categories() {
+
   $('#categories').html('');
+
   fetch(`https://api.mercadolibre.com/sites/${siteSelected}/categories`).then(function(response) {
       return response.json();
   })
   .then(function(data) {
+
     data.forEach(function(categorie, i) {
       $('#categories').append(`<li id="categorie-${i}" data-cat="${categorie.id}" data-index="${i}" class="categorieSearch">${categorie.name}</li>`)
+
       
     });
 
@@ -142,6 +164,7 @@ function categories() {
 }
 
 function selectionCategorie() {
+
   categoria = $(this).data('cat');
   $('#categories').html('');
   fetch(`https://api.mercadolibre.com/categories/${categoria}`).then(function(response) {
@@ -229,13 +252,16 @@ function showInfo() {
 }
 
 
+
 // seleccion de sitio para buscar productos (pais)
 function selectionSite() {
-  let option = this.value;
+  let option = $(this).val();
+
   siteSelected = siteSearch(option);
 }
 
 function siteSearch(option) {
+
   if (option != '') {
     return option;
   } else {
@@ -245,21 +271,24 @@ function siteSearch(option) {
 
 
 // llama a la funcion cuando al buscador se presiona un enter
+
 document.getElementById('search').addEventListener('keypress', function(event) {
   if (event.which === 13) {
     search(document.getElementById('search').value);
+
   }
 });
 
 // buscar todas las imagenes con palabra ingresada
 function search(search) {
+
   $('#promociones').html('');
-  $('#rowProductos').html('');
   fetch(`https://api.mercadolibre.com/sites/${siteSelected}/search?q=${search}`).then(function(response) {
       return response.json();
   })
   
     .then(function(data) {
+
         data.results.forEach(function(producto, i) {
         $('#rowProductos').append(`
                                     <div class="col-md-4 imgProducto" data-index="${producto.id}">
@@ -272,9 +301,11 @@ function search(search) {
   
       });
       $('.imgProducto').click(showInfo);
+
    });
 
 }
+
 
 function randomize() {
   let promo = [];
@@ -314,5 +345,6 @@ function promocion () {
   }) 
     
 }
+
 
 
