@@ -9,6 +9,8 @@ import About from './components/About';
 import SingUp from './components/SingUp';
 import Navbar from './components/CustomNavbar';
 import SideNav from './components/SideNav';
+import Cart from './components/Cart';
+import Login from './components/Login';
 
  // Initialize Firebase
 const config = {
@@ -34,8 +36,9 @@ class App extends Component {
             </Col>
             <Col sm={9} md={9}>
               <Route exact path="/" component={Home} />
-              <Route path="/About" component={About} />
+              <Route path="/Login" component={Login} />
               <Route path="/SingUp" component={SingUp} />
+              <Route path="/Cart" component={Cart} />
             </Col>
           </Row>
           </Grid>
